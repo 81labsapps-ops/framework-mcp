@@ -15,121 +15,121 @@
       "question": "How do I read/write files with expo-file-system in SDK 54?",
       "answer": "SDK 54 makes the new object-oriented File/Directory API the default export of expo-file-system. If your code was written for the older readAsStringAsync-style API, import from 'expo-file-system/legacy' instead - that legacy path is removed entirely in SDK 55.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "What React Native version does Expo SDK 54 use?",
       "answer": "React Native 0.81, with React 19.1.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Can I still opt out of the New Architecture in Expo SDK 54?",
       "answer": "Yes, but SDK 54 is the last release where that's possible. React Native 0.82 (paired with SDK 55) removes the ability to opt out - New Architecture becomes mandatory from SDK 55 onward.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Does Expo SDK 54 still support JavaScriptCore (JSC) as the JS engine?",
       "answer": "React Native 0.81 (used by SDK 54) removed built-in JSC support. If you still need JSC, use the community-maintained package at github.com/react-native-community/javascriptcore.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Why does importing from metro/src/... fail after upgrading to SDK 54?",
       "answer": "SDK 54's bundled Metro no longer supports internal imports via metro/src/.. - switch to metro/private/.. instead.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Why can't I disable edge-to-edge display on Android after upgrading to SDK 54?",
       "answer": "SDK 54 targets Android API 36 (Android 16) and enables edge-to-edge for all Android apps; it cannot be disabled on this SDK version.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Do I need to install react-native-worklets separately for Reanimated in SDK 54?",
       "answer": "Yes. Reanimated v4 (used in SDK 54) requires the New Architecture and introduces react-native-worklets as a dependency that must be installed.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Is expo-build-properties' enableProguardInReleaseBuilds still the right field in SDK 54?",
       "answer": "No, it's deprecated in SDK 54. Use enableMinifyInReleaseBuilds instead.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Is expo-av still usable in SDK 54?",
       "answer": "It's deprecated in SDK 54 and will be removed entirely in SDK 55. Migrate to expo-audio / expo-video.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Should notifications still be configured via a top-level 'notification' field in app.json under SDK 54?",
       "answer": "No, that field is deprecated in SDK 54. Configure notifications through the expo-notifications config plugin instead.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "What's the minimum Xcode version required for Expo SDK 54?",
       "answer": "Xcode 16.1 minimum; Xcode 26 is recommended.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "What's the minimum Node.js version required for Expo SDK 54 tooling?",
       "answer": "Node 20.19.4 minimum.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "What is expo-glass-effect and when would I use it in SDK 54?",
       "answer": "New in SDK 54: expo-glass-effect provides <GlassView> and <GlassContainer> components for iOS 26's Liquid Glass design language.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Does expo-sqlite in SDK 54 support loading arbitrary SQLite extensions?",
       "answer": "Yes. SDK 54's expo-sqlite adds loadExtensionAsync()/loadExtensionSync() and bundles the sqlite-vec extension for vector data.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Are native tabs available in Expo Router on SDK 54?",
       "answer": "Expo Router v6 (SDK 54) adds native tabs (beta) with Liquid Glass support on iOS, plus iOS view-controller previews/transitions for links and experimental server middleware support.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "After upgrading to SDK 54, native modules I didn't explicitly install are getting autolinked - why?",
       "answer": "SDK 54 autolinks native modules that are transitive dependencies, not just direct ones. Revert to the previous behavior with legacy_shallowReactNativeLinking: true if this breaks a build.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "In a monorepo, how does SDK 54 discover native modules for autolinking?",
-      "answer": "It scans package.json dependency declarations rather than scanning node_modules folders directly.",
+      "answer": "It links modules based on your app's direct and nested dependencies rather than scanning all of node_modules - more predictable in monorepos. Opt into applying the same resolution to Metro/Expo CLI via experiments.autolinkingModuleResolution: true in app.json.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "After upgrading to SDK 54 I'm seeing new error logs I never saw before - is something broken?",
       "answer": "Not necessarily. SDK 54 logs unhandled promise rejections as errors by default, surfacing issues that were previously silent.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Is autoprefixer still used for CSS in SDK 54 web builds?",
       "answer": "No, SDK 54 replaces autoprefixer with the Rust-based lightningcss for CSS auto-prefixing.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     },
     {
       "question": "Why do my @expo/vector-icons icon names show TypeScript errors after upgrading to SDK 54?",
       "answer": "@expo/vector-icons was bumped to a newer version in SDK 54 and some icon names changed; recheck icon name strings against the updated typings.",
       "source_url": "https://expo.dev/changelog/sdk-54",
-      "verified_at": "PLACEHOLDER-CONFIRM-AGAINST-LIVE-DOCS"
+      "verified_at": "2026-08-21"
     }
   ]
 }
