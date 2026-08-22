@@ -109,6 +109,8 @@ In a Claude Code `.mcp.json`:
 | Next.js | 16.3.2 | 20 | nextjs.org/blog, nextjs.org/docs upgrade guide |
 | Supabase (supabase-js) | 2.112.3 | 20 | supabase.com/changelog, GitHub releases |
 | Prisma ORM | 7.9.1 | 20 | prisma.io/docs upgrade guide, prisma.io/changelog |
+| Vercel AI SDK | 7.0.77 | 20 | ai-sdk.dev migration guides, vercel.com/blog |
+| Nuxt | 4.5.2 | 20 | nuxt.com/docs upgrade guide, nuxt.com/blog |
 
 All entries verified 2026-08-22 against the official sources cited in each
 seed file under `db/seed/`. To add a framework: create a new
