@@ -1,15 +1,21 @@
 #!/usr/bin/env node
 import { randomUUID } from "node:crypto";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import express from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getDb } from "./db.js";
 import { apiKeyAuthMiddleware } from "./auth/bearerAuthMiddleware.js";
+import { signupRateLimit } from "./auth/signupRateLimit.js";
+import { signupHandler } from "./routes/signup.js";
 import { registerPingTool } from "./tools/ping.js";
 import { registerQueryFrameworkDocTool } from "./tools/queryFrameworkDoc.js";
 import { registerReportOutcomeTool } from "./tools/reportOutcome.js";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const db = getDb();
 const isProd = process.env.NODE_ENV === "production";
 const publicHostname = process.env.PUBLIC_HOSTNAME;
@@ -19,9 +25,17 @@ const app = createMcpExpressApp({
   allowedHosts: isProd && publicHostname ? [publicHostname] : undefined,
 });
 
+// Railway sits in front as a single reverse-proxy hop; without this, every
+// request's IP collapses to the proxy's IP and the signup rate limiter
+// becomes useless. Trust exactly one hop, not a blanket `true`.
+app.set("trust proxy", 1);
+
 app.get("/health", (_req, res) => {
   res.status(200).send("ok");
 });
+
+app.use(express.static(path.join(__dirname, "..", "public")));
+app.post("/signup", signupRateLimit, signupHandler(db));
 
 app.use(apiKeyAuthMiddleware(db));
 

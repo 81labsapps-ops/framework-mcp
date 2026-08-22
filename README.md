@@ -68,6 +68,13 @@ settings. Confirm all 3 tools (`ping`, `query_framework_doc`,
 7. Create a production API key with `npm run create-api-key`, pointed at the
    prod `DATABASE_URL`.
 
+## Get an API key
+
+Self-service: visit **https://framework-mcp-production.up.railway.app/**, enter
+an email, get a key instantly (one active key per email, rate-limited).
+
+Maintainer/local fallback: `npm run create-api-key -- "label"`.
+
 ## Connect a remote client
 
 In a Claude Code `.mcp.json`:
@@ -95,6 +102,9 @@ Seed data in `db/seed/expo-54.json` (20 entries) verified against
 https://expo.dev/changelog/sdk-54 and https://docs.expo.dev/modules/autolinking/
 on 2026-08-21.
 
+Self-service signup live at `/` (email -> instant API key, one per email,
+IP rate-limited). Listed on Smithery / Glama / mcp.so.
+
 Deferred (Stage B, not built yet): Stripe billing, `plan_tier` /
-`credit_balance` / rate-limit enforcement on `api_keys`, other frameworks,
-scoring/ranking on feedback, a marketing landing page.
+`credit_balance` / rate-limit-enforcement-per-key on `api_keys`, other
+frameworks, scoring/ranking on feedback.

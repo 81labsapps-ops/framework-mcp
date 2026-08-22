@@ -52,6 +52,11 @@ CREATE TABLE IF NOT EXISTS api_keys (
   CHECK (revoked_at IS NULL OR revoked_at >= created_at)
 );
 CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash);
+-- One active key per email for self-service signup. Partial (WHERE owner_email
+-- IS NOT NULL) so it never conflicts with existing NULL-email CLI-created keys.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_api_keys_owner_email_unique
+  ON api_keys (owner_email)
+  WHERE owner_email IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS queries (
   id                BIGSERIAL PRIMARY KEY,

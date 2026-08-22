@@ -1,0 +1,6 @@
+{
+  "name": "framework-mcp",
+  "description": "Verified, version-pinned Expo SDK docs for coding agents over remote MCP (Streamable HTTP).",
+  "url": "https://framework-mcp-production.up.railway.app/mcp",
+  "category": "developer-tools"
+}
