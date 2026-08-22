@@ -1,0 +1,25 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.81labsapps-ops/framework-mcp",
+  "title": "framework-mcp",
+  "description": "Verified, version-pinned Expo SDK docs for coding agents over remote MCP (Streamable HTTP).",
+  "version": "0.2.0",
+  "repository": {
+    "url": "https://github.com/81labsapps-ops/framework-mcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://framework-mcp-production.up.railway.app/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Bearer token from your API key, e.g. \"Bearer fmk_live_...\". Get a free key at https://framework-mcp-production.up.railway.app/",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
