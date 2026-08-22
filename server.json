@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.81labsapps-ops/framework-mcp",
   "title": "framework-mcp",
-  "description": "A dependency currency-check layer for coding agents: verified, version-pinned answers about fast-moving frameworks (Expo, Next.js, Supabase, Prisma) over remote MCP.",
+  "description": "Verified, version-pinned answers about fast-moving frameworks for coding agents.",
   "version": "0.3.0",
   "repository": {
     "url": "https://github.com/81labsapps-ops/framework-mcp",
