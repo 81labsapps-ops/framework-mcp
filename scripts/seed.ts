@@ -8,38 +8,52 @@ const seedPath = process.argv[2] ?? path.join(__dirname, "..", "db", "seed", "ex
 const seed = JSON.parse(fs.readFileSync(seedPath, "utf-8"));
 const db = getDb();
 
-const upsertFramework = db.prepare(`
-  INSERT INTO frameworks (slug, name, docs_base_url) VALUES (@slug, @name, @docs_base_url)
-  ON CONFLICT(slug) DO UPDATE SET name = excluded.name, docs_base_url = excluded.docs_base_url
-`);
-const getFrameworkId = db.prepare(`SELECT id FROM frameworks WHERE slug = ?`);
-const upsertVersion = db.prepare(`
-  INSERT INTO versions (framework_id, version, docs_url, is_current, released_at)
-  VALUES (@framework_id, @version, @docs_url, @is_current, @released_at)
-  ON CONFLICT(framework_id, version) DO UPDATE SET
-    docs_url = excluded.docs_url, is_current = excluded.is_current, released_at = excluded.released_at
-`);
-const getVersionId = db.prepare(`SELECT id FROM versions WHERE framework_id = ? AND version = ?`);
-const upsertEntry = db.prepare(`
-  INSERT INTO entries (framework_id, version_id, question, answer, source_url, verified_at)
-  VALUES (@framework_id, @version_id, @question, @answer, @source_url, @verified_at)
-  ON CONFLICT(version_id, question) DO UPDATE SET
-    answer = excluded.answer, source_url = excluded.source_url,
-    verified_at = excluded.verified_at, updated_at = datetime('now')
-`);
+async function main() {
+  const client = await db.connect();
+  try {
+    await client.query("BEGIN");
 
-const tx = db.transaction(() => {
-  upsertFramework.run(seed.framework);
-  const frameworkId = (getFrameworkId.get(seed.framework.slug) as { id: number }).id;
-  upsertVersion.run({
-    framework_id: frameworkId,
-    ...seed.version,
-    is_current: seed.version.is_current ? 1 : 0,
-  });
-  const versionId = (getVersionId.get(frameworkId, seed.version.version) as { id: number }).id;
-  for (const e of seed.entries) {
-    upsertEntry.run({ framework_id: frameworkId, version_id: versionId, ...e });
+    const frameworkResult = await client.query<{ id: number }>(
+      `INSERT INTO frameworks (slug, name, docs_base_url) VALUES ($1, $2, $3)
+       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, docs_base_url = EXCLUDED.docs_base_url
+       RETURNING id`,
+      [seed.framework.slug, seed.framework.name, seed.framework.docs_base_url]
+    );
+    const frameworkId = frameworkResult.rows[0].id;
+
+    const versionResult = await client.query<{ id: number }>(
+      `INSERT INTO versions (framework_id, version, docs_url, is_current, released_at)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (framework_id, version) DO UPDATE SET
+         docs_url = EXCLUDED.docs_url, is_current = EXCLUDED.is_current, released_at = EXCLUDED.released_at
+       RETURNING id`,
+      [frameworkId, seed.version.version, seed.version.docs_url, seed.version.is_current, seed.version.released_at]
+    );
+    const versionId = versionResult.rows[0].id;
+
+    for (const e of seed.entries) {
+      await client.query(
+        `INSERT INTO entries (framework_id, version_id, question, answer, source_url, verified_at)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT (version_id, question) DO UPDATE SET
+           answer = EXCLUDED.answer, source_url = EXCLUDED.source_url,
+           verified_at = EXCLUDED.verified_at, updated_at = now()`,
+        [frameworkId, versionId, e.question, e.answer, e.source_url, e.verified_at]
+      );
+    }
+
+    await client.query("COMMIT");
+    console.log(`Seeded ${seed.entries.length} entries for ${seed.framework.slug}@${seed.version.version}`);
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+    await db.end();
   }
+}
+
+main().catch((err) => {
+  console.error("Seed failed:", err);
+  process.exit(1);
 });
-tx();
-console.log(`Seeded ${seed.entries.length} entries for ${seed.framework.slug}@${seed.version.version}`);

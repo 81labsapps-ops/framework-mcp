@@ -1,27 +1,90 @@
 #!/usr/bin/env node
+import { randomUUID } from "node:crypto";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
+import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getDb } from "./db.js";
+import { apiKeyAuthMiddleware } from "./auth/bearerAuthMiddleware.js";
 import { registerPingTool } from "./tools/ping.js";
 import { registerQueryFrameworkDocTool } from "./tools/queryFrameworkDoc.js";
 import { registerReportOutcomeTool } from "./tools/reportOutcome.js";
 
-const server = new McpServer({ name: "framework-mcp", version: "0.1.0" });
 const db = getDb();
+const isProd = process.env.NODE_ENV === "production";
+const publicHostname = process.env.PUBLIC_HOSTNAME;
 
-registerPingTool(server);
-registerQueryFrameworkDocTool(server, db);
-registerReportOutcomeTool(server, db);
+const app = createMcpExpressApp({
+  host: isProd ? "0.0.0.0" : "127.0.0.1",
+  allowedHosts: isProd && publicHostname ? [publicHostname] : undefined,
+});
 
-async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  // IMPORTANT: stdout is reserved for JSON-RPC framing over stdio.
-  // Any logging must go to stderr, never console.log/stdout.
-  console.error("framework-mcp running on stdio");
+app.get("/health", (_req, res) => {
+  res.status(200).send("ok");
+});
+
+app.use(apiKeyAuthMiddleware(db));
+
+const transports: Record<string, StreamableHTTPServerTransport> = {};
+
+function buildServer(): McpServer {
+  const server = new McpServer({ name: "framework-mcp", version: "0.2.0" });
+  registerPingTool(server);
+  registerQueryFrameworkDocTool(server, db);
+  registerReportOutcomeTool(server, db);
+  return server;
 }
 
-main().catch((err) => {
-  console.error("Fatal error starting framework-mcp:", err);
-  process.exit(1);
+app.post("/mcp", async (req, res) => {
+  const sessionId = req.headers["mcp-session-id"] as string | undefined;
+  let transport = sessionId ? transports[sessionId] : undefined;
+
+  if (!transport && !sessionId && isInitializeRequest(req.body)) {
+    transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: () => randomUUID(),
+      onsessioninitialized: (sid) => {
+        transports[sid] = transport!;
+      },
+    });
+    transport.onclose = () => {
+      if (transport!.sessionId) {
+        delete transports[transport!.sessionId];
+      }
+    };
+    await buildServer().connect(transport);
+  } else if (!transport) {
+    res.status(400).json({
+      jsonrpc: "2.0",
+      error: { code: -32000, message: "No valid session ID provided" },
+      id: null,
+    });
+    return;
+  }
+
+  await transport.handleRequest(req, res, req.body);
+});
+
+app.get("/mcp", async (req, res) => {
+  const sessionId = req.headers["mcp-session-id"] as string | undefined;
+  const transport = sessionId ? transports[sessionId] : undefined;
+  if (!transport) {
+    res.status(400).send("Invalid or missing session ID");
+    return;
+  }
+  await transport.handleRequest(req, res);
+});
+
+app.delete("/mcp", async (req, res) => {
+  const sessionId = req.headers["mcp-session-id"] as string | undefined;
+  const transport = sessionId ? transports[sessionId] : undefined;
+  if (!transport) {
+    res.status(400).send("Invalid or missing session ID");
+    return;
+  }
+  await transport.handleRequest(req, res);
+});
+
+const port = Number(process.env.PORT) || 3000;
+app.listen(port, "0.0.0.0", () => {
+  console.log(`framework-mcp listening on :${port}`);
 });

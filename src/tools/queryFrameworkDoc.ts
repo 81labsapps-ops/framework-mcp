@@ -1,8 +1,8 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type Database from "better-sqlite3";
+import type { Pool } from "pg";
 
-export function registerQueryFrameworkDocTool(server: McpServer, db: Database.Database) {
+export function registerQueryFrameworkDocTool(server: McpServer, db: Pool) {
   server.registerTool(
     "query_framework_doc",
     {
@@ -18,41 +18,47 @@ export function registerQueryFrameworkDocTool(server: McpServer, db: Database.Da
       },
       annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: false },
     },
-    async ({ framework, version, question }) => {
+    async ({ framework, version, question }, extra) => {
       const clientInfo = server.server.getClientVersion();
+      const apiKeyId = (extra.authInfo?.extra?.apiKeyId as string | undefined) ?? null;
 
-      // naive but correct FTS5 fuzzy match: OR every alphanumeric token
       const terms = question.toLowerCase().match(/[a-z0-9][a-z0-9_-]*/g) ?? [];
-      const matchQuery = terms.length ? terms.map((t) => `"${t}"`).join(" OR ") : question;
+      const searchExpr = terms.length ? terms.join(" or ") : question;
 
-      const row = db
-        .prepare(
-          `SELECT e.id, e.question, e.answer, e.source_url, bm25(entries_fts) AS rank
-           FROM entries_fts
-           JOIN entries e ON e.id = entries_fts.rowid
+      const { rows } = await db.query<{
+        id: number;
+        question: string;
+        answer: string;
+        source_url: string;
+      }>(
+        `SELECT e.id, e.question, e.answer, e.source_url,
+                ts_rank_cd(e.search_vector, websearch_to_tsquery('english', $1)) AS rank
+           FROM entries e
            JOIN versions v ON v.id = e.version_id
            JOIN frameworks f ON f.id = e.framework_id
-           WHERE entries_fts MATCH ? AND f.slug = ? AND v.version = ?
-           ORDER BY rank
-           LIMIT 1`
-        )
-        .get(matchQuery, framework, version) as
-        | { id: number; question: string; answer: string; source_url: string }
-        | undefined;
-
-      const insertQuery = db.prepare(`
-        INSERT INTO queries (client_name, client_version, framework, version, question_text, matched_entry_id)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `);
-      const result = insertQuery.run(
-        clientInfo?.name ?? null,
-        clientInfo?.version ?? null,
-        framework,
-        version,
-        question,
-        row?.id ?? null
+          WHERE e.search_vector @@ websearch_to_tsquery('english', $1)
+            AND f.slug = $2 AND v.version = $3
+          ORDER BY rank DESC
+          LIMIT 1`,
+        [searchExpr, framework, version]
       );
-      const queryId = Number(result.lastInsertRowid);
+      const row = rows[0];
+
+      // pg returns bigint (queries.id is BIGSERIAL) columns as strings, not numbers
+      const insertResult = await db.query<{ id: string }>(
+        `INSERT INTO queries (api_key_id, client_name, client_version, framework, version, question_text, matched_entry_id)
+         VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+        [
+          apiKeyId,
+          clientInfo?.name ?? null,
+          clientInfo?.version ?? null,
+          framework,
+          version,
+          question,
+          row?.id ?? null,
+        ]
+      );
+      const queryId = Number(insertResult.rows[0].id);
 
       if (!row) {
         return {

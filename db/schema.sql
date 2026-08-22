@@ -1,76 +1,75 @@
-PRAGMA foreign_keys = ON;
-
 CREATE TABLE IF NOT EXISTS frameworks (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  slug          TEXT NOT NULL UNIQUE,          -- 'expo'
-  name          TEXT NOT NULL,                 -- 'Expo SDK'
-  docs_base_url TEXT NOT NULL,                 -- 'https://docs.expo.dev/versions/'
-  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+  id            SERIAL PRIMARY KEY,
+  slug          TEXT NOT NULL UNIQUE,
+  name          TEXT NOT NULL,
+  docs_base_url TEXT NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS versions (
-  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  id           SERIAL PRIMARY KEY,
   framework_id INTEGER NOT NULL REFERENCES frameworks(id) ON DELETE CASCADE,
-  version      TEXT NOT NULL,                  -- '54.0.0'
-  docs_url     TEXT NOT NULL,                  -- 'https://docs.expo.dev/versions/v54.0.0/'
-  is_current   INTEGER NOT NULL DEFAULT 0,     -- 0/1 boolean
-  released_at  TEXT,
-  created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+  version      TEXT NOT NULL,
+  docs_url     TEXT NOT NULL,
+  is_current   BOOLEAN NOT NULL DEFAULT false,
+  released_at  DATE,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (framework_id, version)
 );
 
 CREATE TABLE IF NOT EXISTS entries (
-  id           INTEGER PRIMARY KEY AUTOINCREMENT,
-  framework_id INTEGER NOT NULL REFERENCES frameworks(id) ON DELETE CASCADE,
-  version_id   INTEGER NOT NULL REFERENCES versions(id) ON DELETE CASCADE,
-  question     TEXT NOT NULL,
-  answer       TEXT NOT NULL,
-  source_url   TEXT NOT NULL,
-  verified_at  TEXT NOT NULL,                  -- date a human/agent confirmed vs live docs
-  created_at   TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at   TEXT NOT NULL DEFAULT (datetime('now')),
+  id            SERIAL PRIMARY KEY,
+  framework_id  INTEGER NOT NULL REFERENCES frameworks(id) ON DELETE CASCADE,
+  version_id    INTEGER NOT NULL REFERENCES versions(id) ON DELETE CASCADE,
+  question      TEXT NOT NULL,
+  answer        TEXT NOT NULL,
+  source_url    TEXT NOT NULL,
+  verified_at   DATE NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  search_vector tsvector GENERATED ALWAYS AS (
+    setweight(to_tsvector('english', coalesce(question, '')), 'A') ||
+    setweight(to_tsvector('english', coalesce(answer, '')), 'B')
+  ) STORED,
   UNIQUE (version_id, question)
 );
 
 CREATE INDEX IF NOT EXISTS idx_entries_version ON entries(version_id);
+CREATE INDEX IF NOT EXISTS idx_entries_search_vector ON entries USING GIN (search_vector);
 
--- External-content FTS5 index over question+answer
-CREATE VIRTUAL TABLE IF NOT EXISTS entries_fts USING fts5(
-  question,
-  answer,
-  content = 'entries',
-  content_rowid = 'id',
-  tokenize = 'porter unicode61'
+-- api_keys is deliberately minimal for Stage A (no billing). Stage B adds
+-- plan_tier / stripe_customer_id / credit_balance / rate_limit_per_minute
+-- as pure additive columns later - never a restructure.
+CREATE TABLE IF NOT EXISTS api_keys (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  key_prefix    TEXT NOT NULL,          -- safe to display/log for identification
+  key_hash      TEXT NOT NULL UNIQUE,   -- HMAC-SHA256(rawKey, API_KEY_PEPPER); raw key is never stored
+  owner_email   TEXT,
+  label         TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_used_at  TIMESTAMPTZ,
+  revoked_at    TIMESTAMPTZ,
+  CHECK (revoked_at IS NULL OR revoked_at >= created_at)
 );
-
-CREATE TRIGGER IF NOT EXISTS entries_ai AFTER INSERT ON entries BEGIN
-  INSERT INTO entries_fts(rowid, question, answer) VALUES (new.id, new.question, new.answer);
-END;
-
-CREATE TRIGGER IF NOT EXISTS entries_ad AFTER DELETE ON entries BEGIN
-  INSERT INTO entries_fts(entries_fts, rowid, question, answer) VALUES ('delete', old.id, old.question, old.answer);
-END;
-
-CREATE TRIGGER IF NOT EXISTS entries_au AFTER UPDATE ON entries BEGIN
-  INSERT INTO entries_fts(entries_fts, rowid, question, answer) VALUES ('delete', old.id, old.question, old.answer);
-  INSERT INTO entries_fts(rowid, question, answer) VALUES (new.id, new.question, new.answer);
-END;
+CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash);
 
 CREATE TABLE IF NOT EXISTS queries (
-  id                INTEGER PRIMARY KEY AUTOINCREMENT,
-  client_name       TEXT,               -- initialize handshake clientInfo.name
-  client_version    TEXT,               -- initialize handshake clientInfo.version
+  id                BIGSERIAL PRIMARY KEY,
+  api_key_id        UUID REFERENCES api_keys(id) ON DELETE SET NULL, -- WHO called
+  client_name       TEXT,      -- WHICH AGENT called (MCP clientInfo.name)
+  client_version    TEXT,
   framework         TEXT NOT NULL,
   version           TEXT NOT NULL,
   question_text     TEXT NOT NULL,
   matched_entry_id  INTEGER REFERENCES entries(id) ON DELETE SET NULL,
-  created_at        TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+CREATE INDEX IF NOT EXISTS idx_queries_api_key ON queries(api_key_id);
 
 CREATE TABLE IF NOT EXISTS feedback (
-  id         INTEGER PRIMARY KEY AUTOINCREMENT,
-  query_id   INTEGER NOT NULL REFERENCES queries(id) ON DELETE CASCADE,
-  worked     INTEGER NOT NULL,          -- 0/1 boolean
+  id         BIGSERIAL PRIMARY KEY,
+  query_id   BIGINT NOT NULL REFERENCES queries(id) ON DELETE CASCADE,
+  worked     BOOLEAN NOT NULL,
   note       TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
