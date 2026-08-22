@@ -2,6 +2,7 @@
   "name": "framework-mcp",
   "version": "0.3.0",
   "description": "A dependency currency-check layer for coding agents: verified, version-pinned answers about fast-moving frameworks over remote MCP.",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "main": "dist/index.js",
