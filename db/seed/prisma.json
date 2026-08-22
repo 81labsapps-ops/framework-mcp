@@ -1,0 +1,135 @@
+{
+  "framework": {
+    "slug": "prisma",
+    "name": "Prisma",
+    "docs_base_url": "https://www.prisma.io/docs"
+  },
+  "version": {
+    "version": "7.9.1",
+    "docs_url": "https://www.prisma.io/docs/orm",
+    "is_current": true,
+    "released_at": "2026-07-27"
+  },
+  "entries": [
+    {
+      "question": "What is the current stable release line of Prisma ORM, and is Prisma 8 safe to use in production yet?",
+      "answer": "Prisma ORM 7 (currently 7.9.1) is the recommended, production-ready release. Prisma 8 is only available as a Release Candidate / Early Access preview, and Prisma explicitly states v7 remains the right choice for production apps.",
+      "source_url": "https://www.prisma.io/blog/the-next-evolution-of-prisma-orm",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why is my Prisma Client code no longer appearing in node_modules/@prisma/client after upgrading to Prisma ORM 7?",
+      "answer": "The new prisma-client generator (the v7 default) requires an explicit output path in the generator block and writes plain TypeScript into your own codebase instead of node_modules - there is no more default/'magic' generation location.",
+      "source_url": "https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is generator client { provider = \"prisma-client-js\" } still the right generator to use?",
+      "answer": "No. prisma-client-js is deprecated and will be removed in a future release; Prisma ORM 7 projects should use provider = \"prisma-client\", the new Rust-free generator, together with a required output path.",
+      "source_url": "https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why did my app's bundle size and cold-start time drop so much after upgrading to Prisma 7?",
+      "answer": "Prisma ORM 7.0.0 (released Nov 19, 2025) removed the Rust query-engine binary and rewrote Prisma Client entirely in TypeScript, cutting client bundle size by about 90% and making queries roughly 3x faster, with better compatibility with edge runtimes like Vercel Edge and Cloudflare Workers.",
+      "source_url": "https://www.prisma.io/blog/announcing-prisma-orm-7-0-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does new PrismaClient() now fail without a driver adapter after I upgraded to v7?",
+      "answer": "Prisma ORM 7 requires a database driver adapter (e.g. @prisma/adapter-pg, @prisma/adapter-better-sqlite3) to construct Prisma Client for every supported database - connecting via just a schema datasource url with no adapter is no longer supported.",
+      "source_url": "https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Where should I configure my DATABASE_URL now that the datasource block's url field is deprecated?",
+      "answer": "Create a prisma.config.ts file at the project root. Prisma ORM 7 centralizes the database URL, schema path, migrations path, and seed command there, replacing the deprecated url, directUrl, and shadowDatabaseUrl datasource fields.",
+      "source_url": "https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why isn't my .env file being picked up automatically when I run prisma CLI commands in v7?",
+      "answer": "Prisma ORM 7 no longer auto-loads environment variables; you must explicitly load them yourself, e.g. import 'dotenv/config' at the top of prisma.config.ts, except on Bun where it isn't necessary.",
+      "source_url": "https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why do prisma migrate dev --skip-generate and prisma migrate dev --skip-seed fail after upgrading to v7?",
+      "answer": "Both flags were removed in Prisma ORM 7: --skip-generate was removed from prisma migrate dev and prisma db push, and --skip-seed was removed from prisma migrate dev, with no direct flag replacement.",
+      "source_url": "https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "My build fails with module/ESM-related errors after upgrading to Prisma ORM 7 - why?",
+      "answer": "Prisma ORM 7 ships exclusively as an ES module, so the project needs \"type\": \"module\" in package.json plus an ESM-compatible tsconfig (e.g. \"module\": \"ESNext\", \"moduleResolution\": \"bundler\"), and requires Node.js 20.19.0+ and TypeScript 5.4.0+ as hard minimums.",
+      "source_url": "https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "prisma.$use() used to work for my logging/soft-delete middleware - why does it error now?",
+      "answer": "The Client middleware API ($use) has been removed in Prisma ORM 7; that logic must be migrated to Client Extensions via $extends() with a query component instead.",
+      "source_url": "https://www.prisma.io/docs/orm/prisma-client/client-extensions",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is the Prisma Metrics preview feature still usable in v7?",
+      "answer": "No. Metrics was deprecated in Prisma ORM 6.14.0 and has been fully removed in Prisma ORM 7.0.0.",
+      "source_url": "https://www.prisma.io/blog/announcing-prisma-orm-7-0-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Can I run Prisma ORM 7 against a MongoDB database?",
+      "answer": "Not yet. As of 7.9.1, Prisma ORM v7 does not support MongoDB; projects using MongoDB should stay on Prisma ORM 6 until MongoDB support is added.",
+      "source_url": "https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "I have @map on my enum values - does the generated TypeScript enum use the schema name or the mapped DB value in the current Prisma 7?",
+      "answer": "It uses the schema name, matching v6 behavior. The initial v7.0.0 release briefly switched generated enum values to use the @map value instead, but Prisma reverted that breaking change in v7.3.0 (Jan 21, 2026) after it caused widespread issues for users.",
+      "source_url": "https://www.prisma.io/changelog/2026-01-21",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What happened to the engineType = \"binary\" generator option in Prisma 7?",
+      "answer": "It's gone. The v7 recommended prisma-client generator configuration has no engineType/binary Rust-engine option, since the Rust query-engine binary was removed as part of the v7 rewrite.",
+      "source_url": "https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What does the new compilerBuild generator option do in recent Prisma 7 releases?",
+      "answer": "Introduced in Prisma ORM v7.3.0, compilerBuild lets you choose between a \"fast\" Query Compiler build (default, optimized for speed) and a \"small\" build (optimized for bundle size).",
+      "source_url": "https://www.prisma.io/changelog/2026-01-21",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why did prisma db push --accept-data-loss start asking for extra confirmation in mid-2026?",
+      "answer": "Prisma extended its AI-agent safety checkpoint to cover prisma db push --accept-data-loss (announced July 17, 2026), specifically to prevent AI coding agents from silently applying destructive schema changes.",
+      "source_url": "https://www.prisma.io/changelog/2026-07-17",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "I'm seeing a raw, unhandled driver exception instead of a normal Prisma error for certain queries - is this expected?",
+      "answer": "It shouldn't be anymore. Since the April 27, 2026 release, previously-unmapped database driver errors surface as a catchable P2039 PrismaClientKnownRequestError instead of crashing the client.",
+      "source_url": "https://www.prisma.io/changelog/2026-04-27",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Does running prisma migrate dev still automatically execute my seed script in v7 the way it did in v6?",
+      "answer": "No. Automatic seeding after migrations was removed in Prisma ORM v7; you must explicitly run prisma db seed, with the seed command configured via prisma.config.ts.",
+      "source_url": "https://www.prisma.io/docs/guides/upgrade-prisma-orm/v7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "I saw \"native PostgreSQL enum lifecycle management\" mentioned for Prisma - is that in the current stable v7 I'm using?",
+      "answer": "No. That feature, along with stock-Supabase-project compatibility and Row-Level Security policy authoring, is a Prisma 8 Early Access feature announced July 17, 2026; it is not part of the current stable Prisma ORM 7 line.",
+      "source_url": "https://www.prisma.io/changelog/2026-07-17",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Should I switch my production app to Prisma 8 now for its new TypeScript-schema and SQL query builder features?",
+      "answer": "Not yet. Prisma 8 is still an Early Access / Release Candidate (e.g. 8.0.0-rc.7) with its own new architecture; Prisma's official guidance is that v7 remains the right, supported choice for production and will keep receiving updates for about 12 months.",
+      "source_url": "https://www.prisma.io/blog/the-next-evolution-of-prisma-orm",
+      "verified_at": "2026-08-22"
+    }
+  ]
+}

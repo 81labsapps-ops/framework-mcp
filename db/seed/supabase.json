@@ -1,0 +1,135 @@
+{
+  "framework": {
+    "slug": "supabase",
+    "name": "Supabase",
+    "docs_base_url": "https://supabase.com/docs"
+  },
+  "version": {
+    "version": "2.112.3",
+    "docs_url": "https://supabase.com/docs/reference/javascript/introduction",
+    "is_current": true,
+    "released_at": "2026-08-11"
+  },
+  "entries": [
+    {
+      "question": "What is the current stable version of supabase-js and when was it released?",
+      "answer": "supabase-js v2.112.3, released August 11, 2026, is the latest stable release on npm and GitHub.",
+      "source_url": "https://github.com/supabase/supabase-js/releases/tag/v2.112.3",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Should new projects still use the anon and service_role API keys with createClient()?",
+      "answer": "No, Supabase now recommends the new publishable (sb_publishable_...) and secret (sb_secret_...) keys in place of anon/service_role; both slot into createClient() unchanged, but the legacy JWT-based keys will be deprecated by the end of 2026.",
+      "source_url": "https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Can I pass the new sb_publishable_/sb_secret_ keys in the Authorization: Bearer header like the old anon key?",
+      "answer": "No, publishable and secret keys must be sent via the apikey header, not Authorization: Bearer; sending them as a Bearer token will fail.",
+      "source_url": "https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why did my OAuth token exchange code that checks for HTTP 201 start failing?",
+      "answer": "As of June 1, 2026 the /v1/oauth/token endpoint returns HTTP 200 instead of 201 for OAuth 2.1 compliance, so code must check for any 2xx status (e.g. response.ok) instead of hardcoding 201.",
+      "source_url": "https://supabase.com/changelog/45468-breaking-change-oauth-token-endpoint-will-return-http-200-instead-of-201",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Does supabase-js still support Node.js 20?",
+      "answer": "No, supabase-js and its sub-packages (auth-js, realtime-js, storage-js, postgrest-js, functions-js) dropped Node.js 20 support on June 30, 2026 since Node 20 is EOL; Node 22+ is required starting from supabase-js v2.110.0.",
+      "source_url": "https://supabase.com/changelog/45715-deprecation-notice-dropping-support-for-node-js-20",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Will code that pins TypeScript 4.x still work with supabase-js?",
+      "answer": "For now yes, but supabase-js will require TypeScript 5.0+ starting with a minor release on or after January 31, 2027, dropping support for TypeScript 4.7-4.9.",
+      "source_url": "https://supabase.com/changelog/47812-deprecation-notice-supabase-supabase-js-will-require-typescript-5-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Do .from()/.rpc() calls in supabase-js automatically retry on transient failures now?",
+      "answer": "Yes, since supabase-js v2.102.0 (April 20, 2026) GET/HEAD PostgREST requests auto-retry up to 3 times with exponential backoff on transient errors (520/503/network failures); POST/PATCH/PUT/DELETE are never auto-retried, and the behavior can be disabled globally or per-call.",
+      "source_url": "https://supabase.com/changelog/45071-automatic-postgrest-retries-for-transient-errors",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why is a brand-new table in the public schema not showing up when I query it via supabase-js?",
+      "answer": "Starting with rollout on April 28, 2026 (default for new projects May 30, 2026, enforced for all projects October 30, 2026), tables in the public schema are no longer auto-exposed to the Data/GraphQL API; you must explicitly GRANT access before PostgREST/supabase-js can reach them.",
+      "source_url": "https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does fetching the OpenAPI/schema spec with the anon (or publishable) key now fail?",
+      "answer": "Since March 11, 2026 the Data API no longer serves the OpenAPI spec to anon-key/publishable-key requests, returning \"Access to schema is forbidden\"; only the service_role/secret key can retrieve it, while normal table queries via /rest/v1/ are unaffected.",
+      "source_url": "https://supabase.com/changelog/42949-breaking-change-removing-access-to-openapi-spec-via-the-anon-key",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Can I still run custom SQL migrations that alter tables in the realtime schema?",
+      "answer": "No, as of Realtime v2.112.7 (July 14, 2026) the realtime schema is fully locked down; CREATE/ALTER/DROP statements against it fail with \"permission denied for schema realtime,\" though RLS policies on realtime.messages for channel authorization can still be modified.",
+      "source_url": "https://supabase.com/changelog/realtime-schema-locked-down-against-modification",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What must be set up before enforcing private Realtime channels in production?",
+      "answer": "You must disable \"Allow public access\" in Realtime settings and create an RLS policy on realtime.messages, since Realtime authorizes channel joins and broadcasts by attempting the operation as the authenticated role and checking whether RLS permits it.",
+      "source_url": "https://supabase.com/docs/guides/realtime/authorization",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is auth.getUser() still the right way to validate a JWT on the server in every case?",
+      "answer": "Not necessarily; for asymmetric (ES256/RS256) JWTs, auth.getClaims() verifies the token locally against the project's published JWKS without a network round-trip to Auth, making it faster than getUser(), which always calls the Auth server.",
+      "source_url": "https://supabase.com/docs/guides/auth/jwts",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Can I sign users in with Face ID/Touch ID/Windows Hello directly through supabase-js now?",
+      "answer": "Yes, experimentally: supabase-js v2.105.0+ ships auth.signInWithPasskey() and auth.registerPasskey() (WebAuthn-based), but you must opt in via auth: { experimental: { passkey: true } } when creating the client, and the API may change without notice.",
+      "source_url": "https://supabase.com/docs/guides/auth/passkeys",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why did my CREATE EXTENSION pgvector VERSION '0.7.0' migration statement stop pinning a version?",
+      "answer": "Since August 5, 2026, non-superuser version-pinning on CREATE/ALTER EXTENSION is deprecated and silently ignored (the default version installs instead, with a warning); drop the VERSION/UPDATE TO clause from migrations.",
+      "source_url": "https://supabase.com/changelog/extension-version-pinning-ignored",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is the Management API's logs.all endpoint still usable for pulling project logs?",
+      "answer": "No, it is being removed on September 23, 2026 in favor of the new ClickHouse-backed logs endpoints; any tooling or CLI scripts calling logs.all must migrate before that date.",
+      "source_url": "https://supabase.com/changelog/48235-migration-of-supabase-management-api-logs-all-analytics-endpoint-to-logs-endpoint",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Does Supabase still support Postgres 14 for projects?",
+      "answer": "No, Postgres 14 support ended July 1, 2026; projects still on PG14 should upgrade since it no longer receives support and Supabase recommends PG15+.",
+      "source_url": "https://supabase.com/changelog/45827-deprecation-notice-support-for-postgres-14-ending-on-1st-july-2026",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What version of PostgREST powers the Data API that supabase-js talks to in 2026?",
+      "answer": "The Data API was upgraded to PostgREST v14 starting January 2026, which is what supabase-js's .from()/.rpc() query builder calls under the hood.",
+      "source_url": "https://supabase.com/changelog/41796-developer-update-january-2026",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "If I self-host Supabase with Docker, will my Kong-specific gateway config still work?",
+      "answer": "Not by default going forward: self-hosted Supabase is switching its default API gateway from Kong to Envoy, rolling out the week of August 9, 2026; custom Kong configs, the 8443 HTTPS port, or references to the \"kong\" container name will break, though the CLI-based local dev workflow (supabase start) is explicitly unaffected.",
+      "source_url": "https://supabase.com/changelog/48048-self-hosted-supabase-envoy-becomes-the-default-api-gateway-b",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "I self-host Supabase Auth; did the default API_EXTERNAL_URL change?",
+      "answer": "Yes, starting the week of July 6, 2026 self-hosted API_EXTERNAL_URL defaults to include /auth/v1 (e.g. http://localhost:8000/auth/v1), shifting the OAuth callback path and moving SAML endpoints to /auth/v1/sso/saml/*, so custom SAML/IdP configs need updating.",
+      "source_url": "https://supabase.com/changelog/47093-self-hosted-supabase-api-external-url-to-include-auth-v1",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Does the supabase-js umbrella package bundle its own auth/storage/realtime client versions, or must I install them separately?",
+      "answer": "@supabase/supabase-js v2.112.3 bundles the current major-2.x releases of auth-js, postgrest-js, realtime-js, storage-js, and functions-js as dependencies, versioned and released together from the supabase/supabase-js monorepo; you don't need to install them separately for standard usage.",
+      "source_url": "https://github.com/supabase/supabase-js/blob/master/CHANGELOG.md",
+      "verified_at": "2026-08-22"
+    }
+  ]
+}

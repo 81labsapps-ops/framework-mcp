@@ -12,6 +12,7 @@ import { apiKeyAuthMiddleware } from "./auth/bearerAuthMiddleware.js";
 import { signupRateLimit } from "./auth/signupRateLimit.js";
 import { signupHandler } from "./routes/signup.js";
 import { registerPingTool } from "./tools/ping.js";
+import { registerListFrameworksTool } from "./tools/listFrameworks.js";
 import { registerQueryFrameworkDocTool } from "./tools/queryFrameworkDoc.js";
 import { registerReportOutcomeTool } from "./tools/reportOutcome.js";
 
@@ -46,8 +47,9 @@ app.use(apiKeyAuthMiddleware(db));
 const transports: Record<string, StreamableHTTPServerTransport> = {};
 
 function buildServer(): McpServer {
-  const server = new McpServer({ name: "framework-mcp", version: "0.2.0" });
+  const server = new McpServer({ name: "framework-mcp", version: "0.3.0" });
   registerPingTool(server);
+  registerListFrameworksTool(server, db);
   registerQueryFrameworkDocTool(server, db);
   registerReportOutcomeTool(server, db);
   return server;

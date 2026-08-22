@@ -1,0 +1,135 @@
+{
+  "framework": {
+    "slug": "nextjs",
+    "name": "Next.js",
+    "docs_base_url": "https://nextjs.org/docs"
+  },
+  "version": {
+    "version": "16.3.2",
+    "docs_url": "https://nextjs.org/docs",
+    "is_current": true,
+    "released_at": "2026-08-21"
+  },
+  "entries": [
+    {
+      "question": "What is the current latest stable version of Next.js, and when was it released?",
+      "answer": "Next.js 16.3.2 is the latest stable release as of August 2026, published August 21, 2026 as a backport bug-fix patch on top of the 16.3.0 minor release (published August 3, 2026, which introduced Instant Navigations and AI tooling improvements).",
+      "source_url": "https://github.com/vercel/next.js/releases",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What is the minimum Node.js version required to run Next.js 16?",
+      "answer": "Next.js 16 requires Node.js 20.9.0 or later (LTS); Node.js 18 is no longer supported.",
+      "source_url": "https://nextjs.org/blog/next-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is middleware.ts still the recommended way to intercept requests in Next.js 16?",
+      "answer": "No. Next.js 16 renames the convention to proxy.ts with an exported proxy function to clarify the network boundary; middleware.ts still works for Edge runtime use cases but is deprecated and will be removed in a future version, and proxy.ts always runs on the Node.js runtime (not Edge).",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is Turbopack still an opt-in flag in Next.js 16, or is it the default bundler now?",
+      "answer": "Turbopack is stable and is now the default bundler for both next dev and next build in Next.js 16; you no longer need --turbopack, and if you have a custom webpack config you must explicitly pass --webpack to keep using it (a next build with a detected webpack config otherwise fails).",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does synchronous access to params, searchParams, cookies(), headers(), or draftMode() throw errors or stop working in Next.js 16?",
+      "answer": "Next.js 15 allowed a temporary synchronous compatibility layer for these APIs, but Next.js 16 fully removes synchronous access - they must now always be awaited (e.g. await params, await cookies()); a codemod (next-async-request-api) can migrate remaining call sites.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does setting experimental.ppr or exporting experimental_ppr from a route no longer do anything in Next.js 16?",
+      "answer": "The experimental.ppr config flag and the route-level export const experimental_ppr have both been removed in Next.js 16; Partial Prerendering has evolved into the Cache Components model, enabled instead via the top-level cacheComponents: true config option.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What replaced the experimental.dynamicIO and experimental.useCache flags in Next.js 16?",
+      "answer": "Both experimental.dynamicIO and experimental.useCache were removed in Next.js 16; projects using them should migrate to the top-level cacheComponents: true config, noting this is not a simple rename since enabling it can surface new build errors for uncached data accessed outside <Suspense>.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does calling revalidateTag('my-tag') with just one argument now produce a TypeScript error in Next.js 16?",
+      "answer": "As of Next.js 16, revalidateTag() requires a second argument - either a cacheLife profile name (e.g. 'max', 'hours', 'days') or an inline { expire: number } object - to enable stale-while-revalidate behavior; the old single-argument form is deprecated.",
+      "source_url": "https://nextjs.org/blog/next-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "If I need a Server Action to show a user their own just-made changes immediately, should I use revalidateTag()?",
+      "answer": "No - revalidateTag(tag, profile) gives stale-while-revalidate semantics where users may briefly see stale data; for read-your-writes semantics (immediate refresh within the same request) Next.js 16 introduces updateTag(tag), a Server Actions-only API from next/cache.",
+      "source_url": "https://nextjs.org/blog/next-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What should I use instead of the removed unstable_rootParams() function?",
+      "answer": "unstable_rootParams() was removed in Next.js 16; Next.js 16.3 introduced a stable replacement, next/root-params, which lets any Server Component read root-level dynamic segments (like [lang]) as an async function (e.g. import { lang } from 'next/root-params') without prop-drilling, and it also works inside use cache scopes.",
+      "source_url": "https://nextjs.org/blog/next-16-3",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is next/legacy/image or the images.domains config still recommended in Next.js 16?",
+      "answer": "Both are deprecated in Next.js 16: use next/image instead of next/legacy/image, and use images.remotePatterns instead of images.domains for improved security restrictions on allowed image hosts.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does <Image quality={80} /> render at a different quality than expected in Next.js 16?",
+      "answer": "The default for images.qualities changed from allowing any value 1-100 to only [75] in Next.js 16; a quality prop not present in the configured images.qualities array is now coerced to the closest allowed value (e.g. 80 becomes 75), so you must explicitly list additional quality values in next.config if you need them.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why are remote images revalidating much less often after upgrading to Next.js 16?",
+      "answer": "The default for images.minimumCacheTTL changed from 60 seconds to 4 hours (14400s) in Next.js 16 to reduce revalidation cost for images lacking their own cache-control headers; set images.minimumCacheTTL: 60 to restore the old behavior.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does my Next.js 16 build fail with a missing default.js error in a parallel route slot that worked fine in Next.js 15?",
+      "answer": "Next.js 16 requires every parallel route slot to have an explicit default.js file; builds now fail without one. Add a default.js that calls notFound() or returns null to restore the previous fallback behavior.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Does next lint still exist as a CLI command in Next.js 16?",
+      "answer": "No, the next lint command has been removed in Next.js 16, and next build no longer runs linting automatically; use ESLint or Biome directly, and the next-lint-to-eslint-cli codemod can automate the migration.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why do serverRuntimeConfig and publicRuntimeConfig no longer work in next.config.js on Next.js 16?",
+      "answer": "Both serverRuntimeConfig and publicRuntimeConfig were removed in Next.js 16; use environment variables instead - server-only values via process.env in Server Components, and client-exposed values via the NEXT_PUBLIC_ prefix.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Does Next.js 16 still support AMP pages?",
+      "answer": "No, all AMP support was fully removed in Next.js 16, including the amp config in next.config, the next/amp useAmp hook, and the export const config = { amp: true } page convention.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why doesn't next build output show \"First Load JS\" or route size metrics anymore in Next.js 16?",
+      "answer": "Next.js 16 removed the size and \"First Load JS\" metrics from next build output because they were found to be inaccurate for server-driven React Server Components architectures; use tools like Chrome Lighthouse or Vercel Analytics to measure actual route performance instead.",
+      "source_url": "https://nextjs.org/docs/app/guides/upgrading/version-16",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What are the cacheComponents and partialPrefetching flags introduced around Next.js 16.3, and why would I enable them?",
+      "answer": "They are opt-in flags (in next.config.ts) that together enable \"Instant Navigations\": cacheComponents makes all dynamic server code execute at request time unless explicitly cached with 'use cache' or streamed with <Suspense>, and partialPrefetching changes prefetching to load one reusable loading shell per route (instead of a full prefetch per link), bringing SPA-like instant navigation responsiveness to server-rendered Next.js apps; both are expected to become defaults in a future major version.",
+      "source_url": "https://nextjs.org/blog/next-16-3-instant-navigations",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What is the new catchError API added in Next.js 16.3, and how does it differ from a normal React error boundary?",
+      "answer": "catchError (imported from next/error) lets you define a custom error boundary that, unlike a standard React error boundary, does not interfere with notFound() or redirect() calls, and it receives a retry() function that can re-fetch/re-render the failed Server Components rather than only resetting client-side state.",
+      "source_url": "https://nextjs.org/blog/next-16-3",
+      "verified_at": "2026-08-22"
+    }
+  ]
+}
