@@ -18,11 +18,15 @@ import { registerReportOutcomeTool } from "./tools/reportOutcome.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const db = getDb();
 const isProd = process.env.NODE_ENV === "production";
-const publicHostname = process.env.PUBLIC_HOSTNAME;
 
+// No allowedHosts restriction: Railway's own internal healthcheck probe
+// doesn't send the public domain as its Host header, so restricting to
+// PUBLIC_HOSTNAME here made Railway's healthcheck itself fail with a 403
+// and roll back every deploy. /mcp is already protected by real bearer-token
+// auth (apiKeyAuthMiddleware below), so the extra DNS-rebinding host check
+// isn't adding meaningful protection in production - just breaking healthchecks.
 const app = createMcpExpressApp({
   host: isProd ? "0.0.0.0" : "127.0.0.1",
-  allowedHosts: isProd && publicHostname ? [publicHostname] : undefined,
 });
 
 // Railway sits in front as a single reverse-proxy hop; without this, every
