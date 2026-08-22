@@ -1,0 +1,135 @@
+{
+  "framework": {
+    "slug": "nuxt",
+    "name": "Nuxt",
+    "docs_base_url": "https://nuxt.com/docs"
+  },
+  "version": {
+    "version": "4.5.2",
+    "docs_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+    "is_current": true,
+    "released_at": "2026-08-05"
+  },
+  "entries": [
+    {
+      "question": "Is Nuxt 3 still safe to use in production as of August 2026?",
+      "answer": "No. Nuxt 3 reached end of life on 31 July 2026 (extended six months from an original January 2026 date) and no longer receives bug fixes or security patches. Nuxt 4 is the current stable, actively maintained line and the official recommendation is to migrate before relying on Nuxt 3 further.",
+      "source_url": "https://nuxt.com/docs/4.x/community/roadmap",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What is the current latest stable Nuxt version right now?",
+      "answer": "Nuxt 4.5.2, published 2026-08-05, is the current latest release on the npm 'latest' dist-tag. The 4.x line has been the stable major version since Nuxt 4.0 shipped on 2025-07-15.",
+      "source_url": "https://nuxt.com/blog/v4",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why doesn't my components/, pages/, composables/, and layouts/ directory structure work after upgrading to Nuxt 4?",
+      "answer": "Nuxt 4 changed the default srcDir to app/, so assets/, components/, composables/, layouts/, middleware/, pages/, plugins/, app.vue, error.vue, and app.config.ts must be moved under an app/ folder. server/, public/, layers/, modules/, and nuxt.config.ts remain at the project root.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "After moving my code into app/ for Nuxt 4, why does my server/ folder still work at the root instead of app/server/?",
+      "answer": "serverDir intentionally defaults to <rootDir>/server rather than being resolved inside the new app/ srcDir, unlike most other directories that moved. This is a deliberate exception in the Nuxt 4 directory structure change.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why do two components calling useFetch or useAsyncData with the same key now affect each other's data in Nuxt 4?",
+      "answer": "Nuxt 4 introduced a singleton data fetching layer: all calls to useAsyncData or useFetch that share the same key now share the same data, error, and status refs, so refreshing one call updates every component using that key. Calls sharing a key must use consistent options.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does useAsyncData return undefined instead of null before the data loads in Nuxt 4?",
+      "answer": "In Nuxt 4, the data and error refs returned by useAsyncData/useFetch default to undefined rather than null, which is a breaking change from Nuxt 3 behavior that code checking explicitly for === null needs to account for.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does mutating a nested property on the data object from useFetch no longer trigger UI updates in Nuxt 4?",
+      "answer": "The data ref returned by useAsyncData/useFetch is now a shallowRef instead of a deep ref for performance. Reactivity only fires when the whole object is replaced (e.g. on refetch), not when a nested property is mutated in place.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why is pending false immediately even though I set immediate: false on my useAsyncData call in Nuxt 4?",
+      "answer": "Nuxt 4 fixed pending to accurately reflect request status: with immediate: false, pending now stays false until the first request actually executes, matching the corrected status property, instead of the old Nuxt 3 behavior of showing pending as true before any fetch had started.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why did my page component's name change and break a KeepAlive include/exclude rule after upgrading to Nuxt 4?",
+      "answer": "Nuxt 4 generates page component names from the route path rather than the filename, so pages/foo/index.vue now produces the component name 'foo' instead of 'index'. This improves KeepAlive and Vue DevTools compatibility but requires updating any code that referenced the old filename-derived names.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "In Nuxt 4, do modules from an extended layer or from the parent project register their hooks first?",
+      "answer": "Nuxt 4 corrected the module loading order so that modules from extended layers now load before project-level modules, establishing the proper inheritance priority. This is a reversal from Nuxt 3, where the order was backwards.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why do vmid, hid, children, and body props in my useHead() calls no longer work in Nuxt 4?",
+      "answer": "Nuxt 4 upgraded its head-management engine to Unhead v2 (further updated to v3 as of Nuxt 4.5), which removed these deprecated legacy props entirely. useHead() calls relying on vmid, hid, children, or body must be rewritten to the current Unhead API.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does my project now have tsconfig.app.json, tsconfig.server.json, and tsconfig.shared.json instead of one tsconfig.json in Nuxt 4?",
+      "answer": "Nuxt 4 splits TypeScript configuration into separate project-reference configs (tsconfig.app.json, tsconfig.server.json, tsconfig.node.json, tsconfig.shared.json) for app, server, and shared code contexts, and removed compilerOptions.baseUrl from the generated config. Only one root tsconfig.json referencing these is needed in your project.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does an extensionless import in nuxt.config.ts fail to resolve after upgrading to Nuxt 4?",
+      "answer": "Nuxt 4 no longer bundles jiti by default, so config-time imports that relied on jiti's implicit extension resolution now need explicit file extensions, or jiti must be added as an explicit dependency if that resolution behavior is required.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why is window.__NUXT__ undefined when I inspect it in the browser console after the page loads in Nuxt 4?",
+      "answer": "Nuxt 4 removes the window.__NUXT__ object from the DOM after hydration completes, as an optimization. Code that needs the payload after hydration should use useNuxtApp().payload instead of reading window.__NUXT__ directly.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does the top-level generate option in nuxt.config no longer affect static site prerendering in Nuxt 4?",
+      "answer": "Nuxt 4 removed the top-level generate config; prerendering configuration now goes under nitro.prerender instead. Config using the old top-level generate key must be migrated to the nitro.prerender equivalent.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What was future.compatibilityVersion for, and is it still relevant now that Nuxt 3 is EOL?",
+      "answer": "future.compatibilityVersion: 4 let Nuxt 3.12+ projects opt into most Nuxt 4 breaking changes ahead of a full upgrade, to surface issues early while re-enabling specific v3 behaviors as needed. Now that Nuxt 3 is EOL, the same mechanism is repurposed in Nuxt 4.2+ as future.compatibilityVersion: 5, letting Nuxt 4 apps test upcoming Nuxt 5 behaviors (e.g. case-sensitive routing, Vite Environment API, Options API disabled by default) before Nuxt 5 ships.",
+      "source_url": "https://nuxt.com/docs/4.x/getting-started/upgrade",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is there a critical security patch I need to apply to my Nuxt 4 app right now?",
+      "answer": "Yes: Nuxt 4.5.1 (and 3.21.10) released 2026-07-27 fixed eight security advisories, including a High-severity server-side RCE via server island props (GHSA-9473-5f9j-94wq, requires vue.runtimeCompiler enabled) and a Critical dev-only RCE in Nuxt DevTools (GHSA-279x-mwfv-vcqv); the official guidance is to run npx nuxt upgrade --dedupe immediately.",
+      "source_url": "https://nuxt.com/blog/v4-5-security",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What's the difference between the Nuxt 4 and upcoming Nuxt 5 releases, and when is Nuxt 5 expected?",
+      "answer": "The Nuxt core team deliberately split what was originally one large release into two stages: Nuxt 4 (July 2025) was a stability-focused release with the app/ directory and data-fetching changes, while Nuxt 5 (targeted for roughly Q4 2026) will carry the bigger infrastructure upgrade to Nitro 3 and H3 v2, moving to web-standard Request/Response/Headers/URL primitives with Rolldown-powered builds.",
+      "source_url": "https://nuxt.com/docs/4.x/community/roadmap",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "In Nuxt 4, where should I put a TypeScript type or constant that needs to be used by both my app/ code and my server/ API routes?",
+      "answer": "Use the shared/ directory at the project root: files under shared/utils/ and shared/types/ are auto-imported into both the app and server contexts, while other files in shared/ can be imported manually via the #shared alias. Code in shared/ cannot import any Vue-specific or Nitro-specific code.",
+      "source_url": "https://nuxt.com/docs/4.x/directory-structure/shared",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What are the notable new features added in the Nuxt 4.5 minor release (beyond the original Nuxt 4.0 breaking changes)?",
+      "answer": "Nuxt 4.5 (2026-07-18) added experimental SSR streaming for faster Time to First Byte, stable bookmarkable error codes (e.g. NUXT_E1001), a useLayout composable for reactively querying the current route's layout, named <NuxtPage> views, and a reactive enabled option to gate useFetch/useAsyncData requests, alongside upgrades to Vite 8, Rspack 2/Rsbuild, and unhead v3.",
+      "source_url": "https://github.com/nuxt/nuxt/releases/tag/v4.5.0",
+      "verified_at": "2026-08-22"
+    }
+  ]
+}

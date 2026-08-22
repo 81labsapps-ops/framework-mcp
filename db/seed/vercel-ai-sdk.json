@@ -1,0 +1,135 @@
+{
+  "framework": {
+    "slug": "vercel-ai-sdk",
+    "name": "Vercel AI SDK",
+    "docs_base_url": "https://ai-sdk.dev/docs"
+  },
+  "version": {
+    "version": "7.0.77",
+    "docs_url": "https://vercel.com/blog/ai-sdk-7",
+    "is_current": true,
+    "released_at": "2026-06-25"
+  },
+  "entries": [
+    {
+      "question": "What is the current major version of the Vercel AI SDK (the ai npm package) as of August 2026?",
+      "answer": "AI SDK 7, released June 25, 2026. The npm latest dist-tag currently resolves to a 7.0.x patch release (7.0.77); AI SDK 6 (with the stable ToolLoopAgent and v3 Language Model Specification) preceded it in December 2025.",
+      "source_url": "https://vercel.com/blog/ai-sdk-7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does result.fullStream no longer exist on the object returned by streamText after upgrading to AI SDK 7?",
+      "answer": "In v7, fullStream was renamed to result.stream. The old property was removed as part of the streaming API cleanup, not just deprecated, so code must be updated to use result.stream.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "My app builds fine locally on Node 18 but fails after installing ai@7 - why?",
+      "answer": "AI SDK 7 requires Node.js 22+ (raised from 18+) and ships ESM-only, dropping CommonJS require() support. Projects still on Node 18/20 or using require('ai') will fail until they upgrade Node and switch to import.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why doesn't passing system: \"You are a helpful assistant\" to streamText/generateText behave as expected in AI SDK 7?",
+      "answer": "The system option was renamed to instructions across generateText, streamText, generateObject, streamObject, and streamUI in v7. prepareStep results, lifecycle callbacks, and experimental_repairToolCall also now use instructions instead of system.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is generateObject()/streamObject() still the recommended way to get structured JSON output in the current AI SDK?",
+      "answer": "No. As of AI SDK 6 (carried into v7), generateObject() and streamObject() are deprecated in favor of using generateText()/streamText() with the new output setting, which unifies structured output with the rest of the generation API.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-6-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "My tool's needsApproval property stopped triggering the human-in-the-loop approval flow after upgrading to AI SDK 7 - what changed?",
+      "answer": "needsApproval on tool()/dynamicTool() is deprecated in v7. Approval logic now lives at the call/agent level via the toolApproval setting on generateText, streamText, or ToolLoopAgent.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why is Experimental_Agent undefined when I import it from the ai package?",
+      "answer": "Experimental_Agent was renamed and stabilized as ToolLoopAgent starting in AI SDK 6. Its default stopWhen also changed from isStepCount(1) to isStepCount(20), and the system parameter became instructions.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-6-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What happened to convertToCoreMessages() - it's no longer exported from ai?",
+      "answer": "It was removed in AI SDK 6. Use convertToModelMessages() instead, which is now an async function (requires await), replacing the old synchronous CoreMessage-based conversion.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-6-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does result.totalUsage show a deprecation warning after upgrading to AI SDK 7?",
+      "answer": "In v7, result.usage itself now accumulates token usage across all steps of a multi-step run (previously it was final-step only), making the separate totalUsage field redundant and deprecated. Use result.finalStep.usage if you specifically need only the last step's usage.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why did OpenTelemetry tracing stop working automatically after upgrading to AI SDK 7?",
+      "answer": "OpenTelemetry support moved out of the core ai package into a separate @ai-sdk/otel package in v7. You must install it and call registerTelemetry(new OpenTelemetry()); telemetry is then opt-out by default once registered, rather than opt-in via isEnabled: true on each call as before.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is CoreMessage still the correct type to use for the messages array passed to generateText/streamText?",
+      "answer": "No. CoreMessage was removed in AI SDK 6; use ModelMessage instead. This is a type-only rename but code importing CoreMessage will fail to compile after upgrading.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-6-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does my onFinish callback on streamText/generateText no longer get called (or get flagged as deprecated) in AI SDK 7?",
+      "answer": "onFinish was renamed to onEnd for generateText, streamText, and agents in v7, and onStepFinish was renamed to onStepEnd. The new onEnd event also receives accumulated results across all steps rather than just the final step.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What's the current recommended way to implement human-in-the-loop tool approval in AI SDK 7?",
+      "answer": "AI SDK 7 adds first-class, agent-level tool approvals: a simple user-approval mode, tool-specific approval functions, or a generic catch-all approval function, with optional HMAC-signed approvals to prevent forged approval tokens. This integrates at the ToolLoopAgent, generateText, and streamText levels.",
+      "source_url": "https://vercel.com/blog/ai-sdk-7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why do I get an error about system messages inside the messages array after upgrading to AI SDK 7?",
+      "answer": "v7 rejects system messages embedded in the prompt/messages array by default. If you persist chats that include system messages this way, you must explicitly set allowSystemInMessages: true to restore the old behavior.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What is WorkflowAgent in AI SDK 7 and how does it differ from ToolLoopAgent?",
+      "answer": "WorkflowAgent, shipped in the new @ai-sdk/workflow package, provides durable, resumable agent execution that survives process restarts, deployments, interruptions, and delayed tool approvals - unlike the in-memory ToolLoopAgent, which does not persist state across restarts.",
+      "source_url": "https://vercel.com/blog/ai-sdk-7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why did textEmbeddingModel() disappear from provider objects?",
+      "answer": "It was renamed to embeddingModel() in AI SDK 6 (and textEmbedding() became embedding()). Generics were also removed from EmbeddingModel, embed(), and embedMany() as part of the same change.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-6-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Is stepCountIs() still the right function to pass to stopWhen in AI SDK 7?",
+      "answer": "No, it was renamed to isStepCount() in v7 as part of a broader naming cleanup (the experimental_* prefix stop-condition helpers were also stabilized).",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "What is HarnessAgent in AI SDK 7 and can it run Claude Code or Codex as an agent inside my app?",
+      "answer": "HarnessAgent is an experimental AI SDK 7 abstraction that provides a unified API for running established agent harnesses - including Claude Code, Codex, and Pi - implementing the standard Agent interface so it produces compatible generate/stream outputs usable with existing useChat() integrations.",
+      "source_url": "https://vercel.com/blog/ai-sdk-7",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Why does calling result.toUIMessageStreamResponse() on a streamText result log a deprecation warning in AI SDK 7?",
+      "answer": "Instance methods like result.toUIMessageStreamResponse(), result.toTextStreamResponse(), and result.pipeUIMessageStreamToResponse() are deprecated in v7 in favor of stateless top-level helpers: createUIMessageStreamResponse() combined with toUIMessageStream(), and createTextStreamResponse().",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    },
+    {
+      "question": "Where did usage.cachedInputTokens and usage.reasoningTokens go on the result's usage object?",
+      "answer": "Both are deprecated flat fields. Cached token counts now live at usage.inputTokenDetails.cacheReadTokens and reasoning token counts at usage.outputTokenDetails.reasoningTokens - a structure introduced in AI SDK 6 and carried forward in v7.",
+      "source_url": "https://ai-sdk.dev/docs/migration-guides/migration-guide-7-0",
+      "verified_at": "2026-08-22"
+    }
+  ]
+}
