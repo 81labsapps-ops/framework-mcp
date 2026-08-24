@@ -13,7 +13,9 @@
     "db:migrate": "tsx --env-file=.env scripts/migrate.ts",
     "db:seed": "tsx --env-file=.env scripts/seed.ts",
     "db:reset": "npm run db:migrate && npm run db:seed",
-    "create-api-key": "tsx --env-file=.env scripts/create-api-key.ts"
+    "create-api-key": "tsx --env-file=.env scripts/create-api-key.ts",
+    "check-freshness": "tsx --env-file=.env scripts/check-freshness.ts",
+    "outcome-digest": "tsx --env-file=.env scripts/outcome-digest.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
